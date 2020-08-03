@@ -28,11 +28,16 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-peacock)
+(setq doom-theme 'doom-Iosvkem)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+;; use same directory for deft as org, for convenience
+(setq deft-directory org-directory)
+;; set org-agenda to look recursively so it picks up org-roam files
+;; https://stackoverflow.com/a/41969519
+(setq org-agenda-files (directory-files-recursively "~/org/" "\\.org$"))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -73,6 +78,9 @@
 
 ;; let avy search across all windows
 (setq avy-all-windows t)
+
+;; center text when visual wrapping is on
+(setq visual-fill-column-center-text t)
 
 ;; solaire-mode adds some nice dimming effects to the interface
 ;; you can see it particularly with treemacs
