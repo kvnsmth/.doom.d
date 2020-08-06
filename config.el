@@ -28,16 +28,33 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-Iosvkem)
+(setq doom-theme 'doom-gruvbox)
 
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+;;
+;; configure org-mode
+;;
+(setq org-directory (expand-file-name "~/org/")
+      org-roam-directory (expand-file-name "~/org/roam/"))
+;; by default do not export section numbers
+(setq org-export-with-section-numbers nil)
+;; I find automatically opening the org-roam buffer annoying. disable.
+(after! org-roam
+  (setq +org-roam-open-buffer-on-find-file nil))
+;; sort diary entries
+(add-hook! 'diary-list-entries-hook 'diary-sort-entries)
+;; include diary entries by default
+(setq org-agenda-include-diary t)
+;; set org-agenda to look at org-roam files too
+;; REVIEW I tried a quote list but it didn't work for some reasons
+(setq org-agenda-files (list org-directory org-roam-directory))
+
+;; configure calendar
+(setq calendar-latitude 37.8
+      calendar-longitude -122.4
+      calendar-location-name "San Francisco, CA")
+
 ;; use same directory for deft as org, for convenience
 (setq deft-directory org-directory)
-;; set org-agenda to look recursively so it picks up org-roam files
-;; https://stackoverflow.com/a/41969519
-(setq org-agenda-files (directory-files-recursively "~/org/" "\\.org$"))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -65,7 +82,9 @@
 
 ;; a few default tweaks
 (setq-default
- window-combination-resize t ; take space from all windows when splitting
+ ;; REVIEW turn off resizing behavior bc I think it might be causing issues
+ ;; with SPC w o
+ ;; window-combination-resize t ; take space from all windows when splitting
  x-stretch-cursor t          ; take up entire space of glyph
  )
 (setq
@@ -106,6 +125,7 @@
                                     (enable-minor-mode
                                      '("\\.jsx?\\'" . prettier-js-mode)))
            )
+
 ;; vlf helps load REALLY large files. it will prompt.
 (use-package! vlf-setup
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
@@ -116,6 +136,11 @@
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 (add-hook 'Info-mode-hook #'mixed-pitch-mode)
 
+;; made spelling and grammar opt-in
+(remove-hook! '(org-mode-hook markdown-mode-hook git-commit-mode-hook)
+  #'flyspell-mode)
+(remove-hook! '(org-mode-hook markdown-mode-hook)
+  #'writegood-mode)
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
 ;; - `load!' for loading external *.el files relative to this one
