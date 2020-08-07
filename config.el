@@ -45,8 +45,48 @@
 ;; include diary entries by default
 (setq org-agenda-include-diary t)
 ;; set org-agenda to look at org-roam files too
-;; REVIEW I tried a quote list but it didn't work for some reasons
-(setq org-agenda-files (list org-directory org-roam-directory))
+(setq org-agenda-files `(,org-directory ,org-roam-directory))
+
+;; configure custom face for done state
+(add-hook! 'doom-load-theme-hook
+           ;; copied pattern for ineriting from .emacs.d/modules/lang/org/config.el
+           (custom-declare-face '+org-todo-done '((t (:inherit (bold success org-todo) :strike-through t))) "")
+           (custom-declare-face '+org-todo-next `((t (
+                                                      :weight bold
+                                                      :foreground ,(doom-color 'dark-blue)
+                                                      )
+                                                     )) "")
+           (custom-declare-face '+org-todo-xdone `((t (
+                                                      :weight bold
+                                                      :foreground ,(doom-color 'grey)
+                                                      )
+                                                     )) "")
+           )
+;; configure TODO states
+;; based on http://doc.norang.ca/org-mode.html
+(after! org
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING")))
+
+  (setq org-todo-keyword-faces
+        '(("TODO"      . +org-todo-active)
+          ("NEXT"      . +org-todo-next)
+          ("DONE"      . +org-todo-done)
+          ("WAITING"   . +org-todo-onhold)
+          ("HOLD"      . +org-todo-onhold)
+          ("CANCELLED" . +org-todo-xdone)
+          ("PHONE"     . +org-todo-xdone)
+          ("MEETING"   . +org-todo-xdone)))
+
+  (setq org-todo-state-tags-triggers
+        '(("CANCELLED" ("CANCELLED" . t))
+          ("WAITING" ("WAITING" . t))
+          ("HOLD" ("WAITING") ("HOLD" . t))
+          (done ("WAITING") ("HOLD"))
+          ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+          ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+          ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
 
 ;; configure calendar
 (setq calendar-latitude 37.8
