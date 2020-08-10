@@ -5,10 +5,11 @@
 ;; on the command line, then restart Emacs for the changes to take effect -- or
 ;; use 'M-x doom/reload'.
 
-(package! solaire-mode)
-(package! info-colors)
-(package! vlf)
-(package! prettier-js)
+(package! solaire-mode)             ; https://github.com/hlissner/emacs-solaire-modea
+(package! info-colors)              ; https://github.com/ubolonton/info-colors
+(package! vlf)                      ; https://github.com/m00natic/vlfi
+(package! prettier-js)              ; https://github.com/prettier/prettier-emacs
+(package! olivetti)                 ; https://github.com/rnkn/olivetti
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)

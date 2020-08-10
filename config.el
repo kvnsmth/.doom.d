@@ -1,13 +1,11 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
-
-
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets.
+;; Personal Information
 (setq user-full-name "Kevn Smith"
-      user-mail-address "kevin@kevinsmith.cc")
+      user-mail-address "kevin@kevinsmith.cc"
+      calendar-latitude 37.8
+      calendar-longitude -122.4
+      calendar-location-name "San Francisco, CA")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
@@ -28,57 +26,112 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-gruvbox)
+(setq doom-theme 'doom-peacock)
 
 ;;
-;; configure org-mode
+;; configure org
 ;;
 (setq org-directory (expand-file-name "~/org/")
-      org-roam-directory (expand-file-name "~/org/roam/"))
+      org-roam-directory (expand-file-name "~/org/"))
+
+;; set org roam index file
+(setq org-roam-index-file "_index.org")
+
 ;; by default do not export section numbers
 (setq org-export-with-section-numbers nil)
+;; less indentation to have more horizontal space
+(setq org-indent-indentation-per-level 1)
+;; disable automatic indentation
+(setq org-adapt-indentation nil)
+;; keep blank line with cycling visibility
+(setq org-cycle-separator-lines 1)
+;; fancy ellipsis when collapsing levels
+(setq org-ellipsis " ︙")
+
 ;; I find automatically opening the org-roam buffer annoying. disable.
-(after! org-roam
-  (setq +org-roam-open-buffer-on-find-file nil))
+;; REVIEW I think turning this off messes with it keeping track of focused buffers
+;; (after! org-roam
+;;   (setq +org-roam-open-buffer-on-find-file nil))
+
 ;; sort diary entries
 (add-hook! 'diary-list-entries-hook 'diary-sort-entries)
 ;; include diary entries by default
 (setq org-agenda-include-diary t)
 ;; set org-agenda to look at org-roam files too
-(setq org-agenda-files `(,org-directory ,org-roam-directory))
+(setq org-agenda-files `(,org-directory))
+;; configure how org reports stuck projects
+(setq org-stuck-projects '("+LEVEL=1+PROJECT-MAYBE/!-DONE-WAITING-HOLD-CANCELLED" ("NEXT") nil ""))
+;; hide scheduled todos from ALL view
+(setq org-agenda-todo-ignore-with-date t)
+;; only show top-level todos (makes todo list more focused)
+(setq org-agenda-todo-list-sublevels nil)
+;; add a CLOSED timestamp property when completing todos
+(setq org-log-done 'time)
+;; open buffers with outline folded
+(setq org-startup-folded t)
 
-;; configure custom face for done state
+;; configure custom faces
 (add-hook! 'doom-load-theme-hook
-           ;; copied pattern for ineriting from .emacs.d/modules/lang/org/config.el
-           (custom-declare-face '+org-todo-done '((t (:inherit (bold success org-todo) :strike-through t))) "")
-           (custom-declare-face '+org-todo-next `((t (
-                                                      :weight bold
-                                                      :foreground ,(doom-color 'dark-blue)
-                                                      )
-                                                     )) "")
-           (custom-declare-face '+org-todo-xdone `((t (
-                                                      :weight bold
-                                                      :foreground ,(doom-color 'grey)
-                                                      )
-                                                     )) "")
-           )
-;; configure TODO states
-;; based on http://doc.norang.ca/org-mode.html
+  (custom-declare-face '+kvnsmth-todo-active `((t (
+                                                   :inherit (bold org-todo)
+                                                   :foreground ,(doom-color 'base8))
+                                                  )) "")
+  (custom-declare-face '+kvnsmth-todo-next `((t (
+                                                 :inherit (bold org-todo)
+                                                 :foreground ,(doom-color 'orange)
+                                                 )
+                                                )) "")
+  (custom-declare-face '+kvnsmth-todo-onhold `((t (
+                                                   :inherit (bold org-todo)
+                                                   :foreground ,(doom-color 'base4)
+                                                   )
+                                                  )) "")
+  (custom-declare-face '+kvnsmth-todo-done '((t (
+                                                 :inherit (bold success org-todo)
+                                                 )
+                                                )) "")
+  (custom-declare-face '+kvnsmth-todo-xdone `((t (
+                                                  :inherit (bold org-todo)
+                                                  :foreground ,(doom-color 'teal)
+                                                  )
+                                                 )) "")
+  )
+
 (after! org
+  ;; setup org roam capture templates
+  (setq org-roam-capture-templates
+        '(
+          ("n" "note" plain #'org-roam-capture--get-point "%?" :file-name "%<%Y%m%d%H%M%S>-${slug}" :head "#+title: ${title}\n" :unnarrowed t)
+          ("p" "permanent" plain #'org-roam-capture--get-point "%?" :file-name "p_%<%Y%m%d%H%M%S>" :head "#+title: ${title}\n#+roam_tags: perm\n" :unnarrowed nil)
+          )
+        )
+  (setq org-capture-templates
+        '(
+          ("t" "Todo" entry
+           (file+headline "_todo.org" "Inbox")
+           "* TODO %?\n%i\n%U" :prepend t)
+          ("c" "Correspondence" entry
+           (file+headline "_todo.org" "Correspondence")
+           "* TODO %?\n%i\n%U" :prepend t)
+          ("f" "Fleeting" entry
+           (file+headline "_xfleeting.org" "Inbox")
+           "* %U\n%?\n%i" :prepend t)
+          ;; see the doom org config.el for more capture template ideas
+          ))
+  ;; configure TODO states
+  ;; based on http://doc.norang.ca/org-mode.html
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
           (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING")))
-
   (setq org-todo-keyword-faces
-        '(("TODO"      . +org-todo-active)
-          ("NEXT"      . +org-todo-next)
-          ("DONE"      . +org-todo-done)
-          ("WAITING"   . +org-todo-onhold)
-          ("HOLD"      . +org-todo-onhold)
-          ("CANCELLED" . +org-todo-xdone)
-          ("PHONE"     . +org-todo-xdone)
-          ("MEETING"   . +org-todo-xdone)))
-
+        '(("TODO"      . +kvnsmth-todo-active)
+          ("NEXT"      . +kvnsmth-todo-next)
+          ("DONE"      . +kvnsmth-todo-done)
+          ("WAITING"   . +kvnsmth-todo-onhold)
+          ("HOLD"      . +kvnsmth-todo-onhold)
+          ("CANCELLED" . +kvnsmth-todo-xdone)
+          ("PHONE"     . +kvnsmth-todo-xdone) ; REVIEW I might not end up using this one much
+          ("MEETING"   . +kvnsmth-todo-xdone)))
   (setq org-todo-state-tags-triggers
         '(("CANCELLED" ("CANCELLED" . t))
           ("WAITING" ("WAITING" . t))
@@ -86,12 +139,18 @@
           (done ("WAITING") ("HOLD"))
           ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
           ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
-          ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+          ("DONE" ("WAITING") ("CANCELLED") ("HOLD"))))
+  )
 
-;; configure calendar
-(setq calendar-latitude 37.8
-      calendar-longitude -122.4
-      calendar-location-name "San Francisco, CA")
+;; configure pretty bullets
+(after! org-superstar
+  (setq org-superstar-headline-bullets-list
+        '("◉" "○")) ; I prefer alternating bullets
+  (setq org-superstar-item-bullet-alist
+        '((?* . ?∘)
+          (?+ . ?＋)
+          (?- . ?－)))
+  )
 
 ;; use same directory for deft as org, for convenience
 (setq deft-directory org-directory)
@@ -120,17 +179,33 @@
 ;; use gravatars for commits
 (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     "))
 
-;; a few default tweaks
+;; tweak some defaults
 (setq-default
  ;; REVIEW turn off resizing behavior bc I think it might be causing issues
  ;; with SPC w o
  ;; window-combination-resize t ; take space from all windows when splitting
  x-stretch-cursor t          ; take up entire space of glyph
  )
+;; general config
 (setq
  auto-save-default t          ; auto save!
  truncate-string-ellipsis "…" ; lets use the real ellipsis character, looks nicer
+ mac-command-modifier 'meta   ; use command, instead of option, for meta
+ mac-option-modifier  'super  ; swap super to option (usually on command)
+ ;; comment-style 'aligned       ; align all line comments
+ global-auto-revert-mode t    ; update buffers if files change outside emacs
  )
+
+;; auto break lines of text when writing
+(add-hook 'text-mode-hook 'auto-fill-mode)
+
+;;
+;; keymappings
+;;
+;; maintain comment behavior with meta, since we remapped command keeping
+(map! :nie "M-/" #'comment-dwim)
+;; similar but for pasting (old habits die hard)
+(map! :g "M-v" #'yank)
 
 ;; lets make which key show up quick!
 (setq which-key-idle-delay 0.5)
@@ -140,6 +215,18 @@
 
 ;; center text when visual wrapping is on
 (setq visual-fill-column-center-text t)
+
+;; made spelling and grammar opt-in
+(remove-hook! '(org-mode-hook markdown-mode-hookk)
+  #'flyspell-mode)
+(remove-hook! '(org-mode-hook markdown-mode-hook)
+  #'writegood-mode)
+(add-hook! 'org-mode-hook (flycheck-mode -1))
+;; simpler minimal writing environment
+(use-package! olivetti
+  :config
+  (setq-default olivetti-body-width 90)
+  :defer-incrementally t)
 
 ;; solaire-mode adds some nice dimming effects to the interface
 ;; you can see it particularly with treemacs
@@ -176,11 +263,6 @@
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 (add-hook 'Info-mode-hook #'mixed-pitch-mode)
 
-;; made spelling and grammar opt-in
-(remove-hook! '(org-mode-hook markdown-mode-hook git-commit-mode-hook)
-  #'flyspell-mode)
-(remove-hook! '(org-mode-hook markdown-mode-hook)
-  #'writegood-mode)
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
 ;; - `load!' for loading external *.el files relative to this one
