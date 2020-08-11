@@ -1,41 +1,93 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Personal Information
+;;; Personal Information
 (setq user-full-name "Kevn Smith"
       user-mail-address "kevin@kevinsmith.cc"
       calendar-latitude 37.8
       calendar-longitude -122.4
       calendar-location-name "San Francisco, CA")
 
-;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
-;; are the three important ones:
-;;
-;; + `doom-font'
-;; + `doom-variable-pitch-font'
-;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;;
-;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
-;; font string. You generally only need these two:
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
+;;; Doom Fonts
 (setq doom-font (font-spec :family "Dank Mono" :size 15)
       doom-big-font (font-spec :family "Dank Mono" :size 28)
       doom-variable-pitch-font (font-spec :family "Overpass" :size 15))
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
+;;; Doom Theme
 (setq doom-theme 'doom-peacock)
 
-;;
-;; configure org
-;;
-(setq org-directory (expand-file-name "~/org/")
-      org-roam-directory (expand-file-name "~/org/"))
+;;; Org Mode
+;;;
+(setq
+ org-directory (expand-file-name "~/org/") ; main directory for all my org files
+ org-roam-directory org-directory
+ deft-directory org-directory
 
-;; set org roam index file
-(setq org-roam-index-file "_index.org")
+ kvnsmth-main-bib (expand-file-name "~/Nextcloud/bibliography/main.bib") ; main bibilography
+
+ ;; helm-bibtex config
+ ;; used for searching for bibliography entries
+ bibtex-completion-notes-path org-directory      ; use one file per references
+ bibtex-completion-bibliography kvnsmth-main-bib ; where to find main bib file
+ bibtex-completion-pdf-field "file"              ; the key in entry that points to file location
+ )
+
+;; setup org-ref for citations in org
+(use-package! org-ref
+  :init
+  (map! :after org
+        :map org-mode-map
+        :niv "C-n" #'org-ref-open-notes-at-point)
+  :config
+  (setq
+   org-ref-default-bibliography kvnsmth-main-bib
+   org-ref-notes-directory org-directory
+   org-ref-completion-library 'org-ref-ivy-cite
+   org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+   ;; REVIEW I /think/ that orb will do this swizzling for us
+   org-ref-notes-function 'orb-edit-notes
+   ))
+
+;; connect everything to org-roam
+(use-package! org-roam-bibtex
+  :after org-roam
+  :init
+  (map! :after org-roam
+        :map org-mode-map
+        :niv "C-c n a" #'orb-note-actions)
+  :config
+  (setq
+   orb-preformat-keywords
+   '("=key=" "title" "url" "file" "author-or-editor" "keywords")
+   ;; this is the main template for creating new note files
+   orb-templates
+   '(("r" "ref" plain (function org-roam-capture--get-point)
+      ""
+      :file-name "${slug}"
+      :head "#+TITLE: ${=key=}: ${title}
+#+ROAM_KEY: ${ref}
+#+roam_tags: ref
+
++ tags ::
++ keywords :: ${keywords}
+
+* TODO Summary
+
+* Notes\n:PROPERTIES:\n:Custom_ID: ${=key=}\n:URL: ${url}\n:AUTHOR: ${author-or-editor}\n:NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n:NOTER_PAGE: \n:END:\n\n"
+      :unnarrowed t))
+   ))
+;; Best I can tell there is some load order issue with hooking into
+;; org-roam so just do it on org mode entry
+(add-hook! 'org-mode-hook 'org-roam-bibtex-mode)
+
+;; org-noter to connect pdfs and notes
+(use-package! org-noter
+  :after (:any org pdf-view)
+  :config
+  (setq
+   org-noter-auto-save-last-location t
+   org-noter-notes-search-path (list org-directory)
+   )
+  )
 
 ;; by default do not export section numbers
 (setq org-export-with-section-numbers nil)
@@ -48,11 +100,15 @@
 ;; fancy ellipsis when collapsing levels
 (setq org-ellipsis " ︙")
 
-;; I find automatically opening the org-roam buffer annoying. disable.
-;; REVIEW I think turning this off messes with it keeping track of focused buffers
-;; (after! org-roam
-;;   (setq +org-roam-open-buffer-on-find-file nil))
-
+(after! org-roam
+  (setq
+   ;; I find automatically opening the org-roam buffer annoying. disable.
+   +org-roam-open-buffer-on-find-file nil
+   ;; make backlinks buffer a little more narrow
+   org-roam-buffer-width 0.25
+   org-roam-index-file "_index.org"
+   )
+  )
 ;; sort diary entries
 (add-hook! 'diary-list-entries-hook 'diary-sort-entries)
 ;; include diary entries by default
@@ -152,11 +208,7 @@
           (?- . ?－)))
   )
 
-;; use same directory for deft as org, for convenience
-(setq deft-directory org-directory)
-
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
+;; Relative line numbers
 (setq display-line-numbers-type 'relative)
 
 ;; tweak autocomplete with comapny so that it appears quickly
@@ -186,13 +238,13 @@
  ;; window-combination-resize t ; take space from all windows when splitting
  x-stretch-cursor t          ; take up entire space of glyph
  )
-;; general config
+
+;;; General Config
 (setq
  auto-save-default t          ; auto save!
  truncate-string-ellipsis "…" ; lets use the real ellipsis character, looks nicer
  mac-command-modifier 'meta   ; use command, instead of option, for meta
  mac-option-modifier  'super  ; swap super to option (usually on command)
- ;; comment-style 'aligned       ; align all line comments
  global-auto-revert-mode t    ; update buffers if files change outside emacs
  )
 
@@ -222,6 +274,16 @@
 (remove-hook! '(org-mode-hook markdown-mode-hook)
   #'writegood-mode)
 (add-hook! 'org-mode-hook (flycheck-mode -1))
+
+;; company backends don't load reliably for org
+;; I don't know why but text mode seemed to be hijacking company-org-roam
+;; REVIEW surely this is a bug...
+(set-company-backend! '(org-mode text-mode) '(company-org-roam company-yasnippet company-dabbrev))
+
+;;
+;; package configs
+;;
+
 ;; simpler minimal writing environment
 (use-package! olivetti
   :config
@@ -253,7 +315,7 @@
                                      '("\\.jsx?\\'" . prettier-js-mode)))
            )
 
-;; vlf helps load REALLY large files. it will prompt.
+;; vlf helps load REALLY large files. it will prompt to use.
 (use-package! vlf-setup
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
 
