@@ -158,20 +158,23 @@
   (setq org-roam-capture-templates
         '(
           ("n" "note" plain #'org-roam-capture--get-point "%?" :file-name "%<%Y%m%d%H%M%S>-${slug}" :head "#+title: ${title}\n" :unnarrowed t)
-          ("p" "permanent" plain #'org-roam-capture--get-point "%?" :file-name "p_%<%Y%m%d%H%M%S>" :head "#+title: ${title}\n#+roam_tags: perm\n" :unnarrowed nil)
+          ("p" "permanent" plain #'org-roam-capture--get-point "+ tags :: %?\n\n* Note\n" :file-name "p_%<%Y%m%d%H%M%S>" :head "#+title: ${title}\n#+roam_tags: perm\n\n" :unnarrowed nil)
           )
         )
   (setq org-capture-templates
         '(
           ("t" "Todo" entry
            (file+headline "_todo.org" "Inbox")
-           "* TODO %?\n%i\n%U" :prepend t)
+           "* TODO %?\n%i\nfile:%F\n%U" :prepend t)
           ("c" "Correspondence" entry
            (file+headline "_todo.org" "Correspondence")
            "* TODO %?\n%i\n%U" :prepend t)
           ("f" "Fleeting" entry
            (file+headline "_xfleeting.org" "Inbox")
-           "* %U\n%?\n%i" :prepend t)
+           "* %U\n%?\n%i\nfile:%F" :prepend t)
+          ("g" "Gratitude" entry
+           (file+olp+datetree "_gratitude.org")
+           "* %?")
           ;; see the doom org config.el for more capture template ideas
           ))
   ;; configure TODO states
