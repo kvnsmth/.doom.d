@@ -84,8 +84,11 @@
   :after (:any org pdf-view)
   :config
   (setq
+   org-noter-always-create-frame t
    org-noter-auto-save-last-location t
-   org-noter-notes-search-path (list org-directory)
+   org-noter-separate-notes-from-heading t
+   org-noter-default-heading-title "Page $p$"
+   org-noter-notes-search-path `(,org-directory)
    )
   )
 
@@ -99,6 +102,19 @@
 (setq org-cycle-separator-lines 1)
 ;; fancy ellipsis when collapsing levels
 (setq org-ellipsis " ︙")
+
+(use-package! org-roam-server
+  :ensure t
+  :config
+  (setq org-roam-server-host "127.0.0.1"
+        org-roam-server-port 8080
+        org-roam-server-export-inline-images t
+        org-roam-server-authenticate nil
+        org-roam-server-network-poll t
+        org-roam-server-network-arrows nil
+        org-roam-server-network-label-truncate t
+        org-roam-server-network-label-truncate-length 60
+        org-roam-server-network-label-wrap-length 20))
 
 (after! org-roam
   (setq
@@ -157,8 +173,24 @@
   ;; setup org roam capture templates
   (setq org-roam-capture-templates
         '(
-          ("n" "note" plain #'org-roam-capture--get-point "%?" :file-name "%<%Y%m%d%H%M%S>-${slug}" :head "#+title: ${title}\n" :unnarrowed t)
-          ("p" "permanent" plain #'org-roam-capture--get-point "+ tags :: %?\n\n* Note\n" :file-name "p_%<%Y%m%d%H%M%S>" :head "#+title: ${title}\n#+roam_tags: perm\n\n" :unnarrowed nil)
+          ("n" "note" plain #'org-roam-capture--get-point
+           "%?"
+           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+TITLE: ${title}\n"
+           :unnarrowed t)
+          ("p" "permanent" plain #'org-roam-capture--get-point
+           "+ tags :: %?\n\n* Note\n"
+           :file-name "p_%<%Y%m%d%H%M%S>"
+           :head "#+TITLE: ${title}\n#+roam_tags: perm\n\n"
+           :unnarrowed nil)
+          )
+        )
+  (setq org-roam-capture-ref-templates
+        '(("w" "website" plain #'org-roam-capture--get-point
+           "+ source :: ${ref}\n+ tags :: %?\n+ description :: \n\n* TODO read\n\n* Summary\n\n* Notes"
+           :file-name "w_%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+roam_tags: ref\n\n"
+           :unnarrowed t)
           )
         )
   (setq org-capture-templates

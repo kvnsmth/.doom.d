@@ -12,6 +12,7 @@
 (package! olivetti)                 ; https://github.com/rnkn/olivetti
 (package! org-ref)                  ; https://github.com/jkitchin/org-ref
 (package! org-roam-bibtex)          ; https://github.com/org-roam/org-roam-bibtex
+(package! org-roam-server)          ; https://github.com/org-roam/org-roam-server
 
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
