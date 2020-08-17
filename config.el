@@ -13,7 +13,22 @@
       doom-variable-pitch-font (font-spec :family "Overpass" :size 15))
 
 ;;; Doom Theme
-(setq doom-theme 'doom-peacock)
+(setq doom-theme 'doom-gruvbox
+      doom-gruvbox-dark-variant "hard"
+      doom-gruvbox-brighter-comments t)
+;; I don't like the default yellow for outline-1
+;; While we're here, customize some more.
+(custom-theme-set-faces! 'doom-gruvbox
+  `(outline-1    :foreground ,(doom-color 'violet)       :bold t)
+  `(outline-2    :foreground ,(doom-color 'blue)         :bold t)
+  `(outline-3    :foreground ,(doom-color 'teal)         :bold t)
+  `(outline-4    :foreground ,(doom-lighten 'red 0.2)    :bold t)
+  `(outline-5    :foreground ,(doom-color 'gray)         :bold t)
+  `(outline-6    :foreground ,(doom-lighten 'orange 0.4) :bold t)
+  `(outline-7    :foreground ,(doom-color 'gray)         :bold t)
+  `(outline-8    :foreground ,(doom-lighten 'orange 0.4) :bold t)
+  `(org-ellipsis :foreground ,(doom-color 'fg)           :bold nil)
+  )
 
 ;;; Org Mode
 ;;;
