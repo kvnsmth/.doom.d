@@ -8,7 +8,7 @@
       calendar-location-name "San Francisco, CA")
 
 ;;; Doom Fonts
-(setq doom-font (font-spec :family "Dank Mono" :size 15)
+(setq doom-font (font-spec :family "Dank Mono" :size 16)
       doom-big-font (font-spec :family "Dank Mono" :size 28)
       doom-variable-pitch-font (font-spec :family "Overpass" :size 15))
 
@@ -63,6 +63,7 @@
    ))
 
 ;; connect everything to org-roam
+;; fyi, orb = org-roam-bibtex
 (use-package! org-roam-bibtex
   :after org-roam
   :init
@@ -90,7 +91,7 @@
 * Notes\n:PROPERTIES:\n:Custom_ID: ${=key=}\n:URL: ${url}\n:AUTHOR: ${author-or-editor}\n:NOTER_DOCUMENT: %(orb-process-file-field \"${=key=}\")\n:NOTER_PAGE: \n:END:\n\n"
       :unnarrowed t))
    ))
-;; Best I can tell there is some load order issue with hooking into
+;; REVIEW Best I can tell there is some load order issue with hooking into
 ;; org-roam so just do it on org mode entry
 (add-hook! 'org-mode-hook 'org-roam-bibtex-mode)
 
@@ -107,15 +108,17 @@
    )
   )
 
+;; improve latex creation for retina displays by using SVG
+(setq org-preview-latex-default-process 'dvisvgm)
 ;; by default do not export section numbers
 (setq org-export-with-section-numbers nil)
 ;; less indentation to have more horizontal space
 (setq org-indent-indentation-per-level 1)
-;; disable automatic indentation
-(setq org-adapt-indentation nil)
+;; adapt indentation, I find this more natural when adding headings
+(setq org-adapt-indentation t)
 ;; keep blank line with cycling visibility
 (setq org-cycle-separator-lines 1)
-;; fancy ellipsis when collapsing levels
+;; fancy "ellipsis" when collapsing levels
 (setq org-ellipsis " ︙")
 
 (use-package! org-roam-server
@@ -147,7 +150,7 @@
 ;; set org-agenda to look at org-roam files too
 (setq org-agenda-files `(,org-directory))
 ;; configure how org reports stuck projects
-(setq org-stuck-projects '("+LEVEL=1+PROJECT-MAYBE/!-DONE-WAITING-HOLD-CANCELLED" ("NEXT") nil ""))
+(setq org-stuck-projects '("+LEVEL=2+PROJECT-MAYBE/!-DONE-WAITING-HOLD-CANCELLED" ("NEXT") nil ""))
 ;; hide scheduled todos from ALL view
 (setq org-agenda-todo-ignore-with-date t)
 ;; only show top-level todos (makes todo list more focused)
@@ -155,7 +158,7 @@
 ;; add a CLOSED timestamp property when completing todos
 (setq org-log-done 'time)
 ;; open buffers with outline folded
-(setq org-startup-folded t)
+(setq org-startup-folded 'content)
 
 ;; configure custom faces
 (add-hook! 'doom-load-theme-hook
@@ -168,6 +171,11 @@
                                                  :foreground ,(doom-color 'orange)
                                                  )
                                                 )) "")
+  (custom-declare-face '+kvnsmth-todo-started `((t (
+                                                    :inherit (bold org-todo)
+                                                    :foreground ,(doom-color 'violet)
+                                                    )
+                                                   )) "")
   (custom-declare-face '+kvnsmth-todo-onhold `((t (
                                                    :inherit (bold org-todo)
                                                    :foreground ,(doom-color 'base4)
@@ -222,16 +230,21 @@
           ("g" "Gratitude" entry
            (file+olp+datetree "_gratitude.org")
            "* %?")
+          ;; Link captures are for quickly storing links from my browser
+          ("l" "Link" entry
+           (file+olp+datetree "_links.org")
+           "* %:annotation\n\"%:initial\"\n%?" :empty-lines 1)
           ;; see the doom org config.el for more capture template ideas
           ))
   ;; configure TODO states
   ;; based on http://doc.norang.ca/org-mode.html
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+        '((sequence "TODO(t)" "NEXT(n)" "STARTED(s)" "|" "DONE(d)")
           (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING")))
   (setq org-todo-keyword-faces
         '(("TODO"      . +kvnsmth-todo-active)
           ("NEXT"      . +kvnsmth-todo-next)
+          ("STARTED"   . +kvnsmth-todo-started)
           ("DONE"      . +kvnsmth-todo-done)
           ("WAITING"   . +kvnsmth-todo-onhold)
           ("HOLD"      . +kvnsmth-todo-onhold)
@@ -244,10 +257,55 @@
           ("HOLD" ("WAITING") ("HOLD" . t))
           (done ("WAITING") ("HOLD"))
           ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+          ("STARTED" ("WAITING") ("CANCELLED") ("HOLD"))
           ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
           ("DONE" ("WAITING") ("CANCELLED") ("HOLD"))))
+  (setq org-agenda-start-day "0d")
+  (setq org-agenda-span 2)
   )
 
+;; customized agenda view
+;; inspired by https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html
+(defun air-org-skip-subtree-if-priority (priority)
+  "Skip an agenda subtree if it has a priority of PRIORITY.
+
+PRIORITY may be one of the characters ?A, ?B, or ?C."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+        (pri-value (* 1000 (- org-lowest-priority priority)))
+        (pri-current (org-get-priority (thing-at-point 'line t))))
+    (if (= pri-value pri-current)
+        subtree-end
+      nil)))
+(setq org-agenda-custom-commands
+      '(("c" "Simple agenda view"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (agenda "")
+          (stuck "")
+          (alltodo ""
+                   ((org-agenda-skip-function '(or (org-agenda-skip-entry-if 'regexp ":PROJECT:")
+                                                   (air-org-skip-subtree-if-priority ?A)))
+                    (org-agenda-overriding-header "Unscheduled tasks:")
+                    (org-agenda-sorting-strategy '((todo
+                                                    user-defined-down
+                                                    priority-down
+                                                    category-keep))))))
+         ((org-agenda-block-separator "~~~~")))))
+
+;; custom sorting based on todo state
+;; I want NEXT and WAITING to appear at the top of agenda sorting
+(defun kls-compare-todo-state (a b)
+  (let (
+         (tsa (org-entry-get (get-text-property 0 'org-hd-marker a) "TODO"))
+         (tsb (org-entry-get (get-text-property 0 'org-hd-marker b) "TODO"))
+         (order (list "NEXT" "WAITING" "TODO"))
+         )
+    (if (< (seq-position order tsa) (seq-position order tsb))
+        +1 -1)))
+(setq org-agenda-cmp-user-defined #'kls-compare-todo-state)
+
+;; (tsb (org-entry-get b "TODO"))
 ;; configure pretty bullets
 (after! org-superstar
   (setq org-superstar-headline-bullets-list
@@ -258,14 +316,13 @@
           (?- . ?－)))
   )
 
-;; Relative line numbers
-(setq display-line-numbers-type 'relative)
-
 ;; tweak autocomplete with comapny so that it appears quickly
 (after! company
   (setq company-idle-delay 0
         company-minimum-prefix-length 2
-        company-show-numbers t)
+        company-show-numbers t
+        company-tooltip-minimum-width 30
+        company-tooltip-maximum-width 60)
   (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
 
 ;; projectile setup
@@ -279,7 +336,13 @@
 (add-hook 'window-setup-hook #'toggle-frame-maximized)
 
 ;; use gravatars for commits
-(setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     "))
+(setq magit-revision-show-gravatars t)
+;; treemacs config
+(setq +treemacs-git-mode nil      ; I don't need git in my treemacs
+      treemacs-position 'right    ; personal preference
+      treemacs-silent-filewatch t ; shh
+      treemacs-silent-refresh t   ; shh
+      treemacs-resize-icons 44)   ; hidpi goodness
 
 ;; tweak some defaults
 (setq-default
@@ -291,15 +354,18 @@
 
 ;;; General Config
 (setq
- auto-save-default t          ; auto save!
- truncate-string-ellipsis "…" ; lets use the real ellipsis character, looks nicer
- mac-command-modifier 'meta   ; use command, instead of option, for meta
- mac-option-modifier  'super  ; swap super to option (usually on command)
- global-auto-revert-mode t    ; update buffers if files change outside emacs
+ auto-save-default t                 ; auto save!
+ truncate-string-ellipsis "…"        ; lets use the real ellipsis character, looks nicer
+ mac-command-modifier 'meta          ; use command, instead of option, for meta
+ mac-option-modifier  'super         ; swap super to option (usually on command)
+ global-auto-revert-mode t           ; update buffers if files change outside emacs
+ display-line-numbers-type 'relative ; relative makes motion easier to calc
  )
 
 ;; auto break lines of text when writing
 (add-hook 'text-mode-hook 'auto-fill-mode)
+;; what does this do?
+(setq display-fill-column-indicator t)
 
 ;;
 ;; keymappings
@@ -309,7 +375,7 @@
 ;; similar but for pasting (old habits die hard)
 (map! :g "M-v" #'yank)
 
-;; lets make which key show up quick!
+;; lets make which key show up quickly!
 (setq which-key-idle-delay 0.5)
 
 ;; let avy search across all windows
@@ -337,7 +403,7 @@
 ;; simpler minimal writing environment
 (use-package! olivetti
   :config
-  (setq-default olivetti-body-width 90)
+  (setq-default olivetti-body-width 110)
   :defer-incrementally t)
 
 ;; solaire-mode adds some nice dimming effects to the interface
@@ -360,9 +426,9 @@
 (use-package! prettier-js)
 (add-hook! 'js2-mode-hook 'prettier-js-mode)
 ;; only enable for JSX in web mode
-(add-hook! 'web-mode-hook #'(labmda ()
-                                    (enable-minor-mode
-                                     '("\\.jsx?\\'" . prettier-js-mode)))
+(add-hook! 'web-mode-hook #'(lambda ()
+                              (enable-minor-mode
+                               '("\\.jsx?\\'" . prettier-js-mode)))
            )
 
 ;; vlf helps load REALLY large files. it will prompt to use.
@@ -374,6 +440,57 @@
   :commands (info-colors-fontify-node))
 (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 (add-hook 'Info-mode-hook #'mixed-pitch-mode)
+
+;;; lexic for offline dictionary
+;;; dictionaries in StarDict format:
+;;;   http://download.huzheng.org/bigdict/
+;;;   https://tuxor1337.frama.io/firedict/dictionaries.html
+(use-package! lexic
+  :commands lexic-search lexic-list-dictionary
+  :init
+  (setq lexic-program-path "/usr/local/bin/sdcv")
+  :config
+  (map! :map lexic-mode-map
+        :n "q" #'lexic-return-from-lexic
+        :nv "RET" #'lexic-search-word-at-point
+        :n "a" #'outline-show-all
+        :n "h" (cmd! (outline-hide-sublevels 3))
+        :n "o" #'lexic-toggle-entry
+        :n "n" #'lexic-next-entry
+        :n "N" (cmd! (lexic-next-entry t))
+        :n "p" #'lexic-previous-entry
+        :n "P" (cmd! (lexic-previous-entry t))
+        :n "b" #'lexic-search-history-backwards
+        :n "f" #'lexic-search-history-forwards
+        :n "/" (cmd! (call-interactively #'lexic-search)))
+  (defvar lexic-dictionary-specs
+    '(("Webster's Revised Unabridged Dictionary (1913)"
+       :formatter lexic-format-webster
+       :priority 1)
+      ("GNU Collaborative International Dictionary of English"
+       :formatter lexic-format-webster
+       :priority 1)
+      ("Elements database"
+       :short "Element"
+       :formatter lexic-format-element
+       :priority 2)
+      ("Online Etymology Dictionary"
+       :short "Etymology"
+       :formatter lexic-format-online-etym
+       :priority 4)
+      ("Soule's Dictionary of English Synonyms"
+       :short "Synonyms"
+       :formatter lexic-format-soule
+       :priority 5))))
+
+(defadvice! +lookup/dictionary-definition-lexic (identifier &optional _)
+  "Look up the definition of the word at point (or selection) using `lexic-search'."
+  :override #'+lookup/dictionary-definition
+  (interactive
+   (list (or (doom-thing-at-point-or-region 'word)
+             (read-string "Look up in dictionary: "))
+         current-prefix-arg))
+  (lexic-search identifier nil nil t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
