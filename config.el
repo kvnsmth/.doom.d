@@ -193,6 +193,8 @@
   )
 
 (after! org
+  ;; enable habits
+  (add-to-list 'org-modules 'org-habit)
   ;; setup org roam capture templates
   (setq org-roam-capture-templates
         '(
@@ -260,8 +262,17 @@
           ("STARTED" ("WAITING") ("CANCELLED") ("HOLD"))
           ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
           ("DONE" ("WAITING") ("CANCELLED") ("HOLD"))))
-  (setq org-agenda-start-day "0d")
-  (setq org-agenda-span 2)
+  (setq org-agenda-start-day "0d"
+        org-agenda-span 3)
+  (setq org-agenda-tags-column 80)
+  (setq org-habit-preceding-days 7
+        org-habit-following-days 3
+        org-habit-graph-column 80
+        org-habit-show-done-always-green t
+        org-habit-show-habits-only-for-today t
+        org-habit-show-all-today t)
+  ;; I don't like the auto-resizing thing doom does
+  (remove-hook 'org-agenda-mode-hook #'+org-habit-resize-graph-h)
   )
 
 ;; customized agenda view
@@ -277,12 +288,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         subtree-end
       nil)))
 (setq org-agenda-custom-commands
-      '(("c" "Simple agenda view"
+      '(("k" "Kustom Agenda"
          ((tags "PRIORITY=\"A\""
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+                 (org-agenda-overriding-header "Unfinished tasks:")))
           (agenda "")
-          (stuck "")
+          (stuck ""
+                 ((org-agenda-overriding-header "Stuck projects:")))
           (alltodo ""
                    ((org-agenda-skip-function '(or (org-agenda-skip-entry-if 'regexp ":PROJECT:")
                                                    (air-org-skip-subtree-if-priority ?A)))
@@ -297,15 +309,14 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; I want NEXT and WAITING to appear at the top of agenda sorting
 (defun kls-compare-todo-state (a b)
   (let (
-         (tsa (org-entry-get (get-text-property 0 'org-hd-marker a) "TODO"))
-         (tsb (org-entry-get (get-text-property 0 'org-hd-marker b) "TODO"))
-         (order (list "NEXT" "WAITING" "TODO"))
-         )
+        (tsa (org-entry-get (get-text-property 0 'org-hd-marker a) "TODO"))
+        (tsb (org-entry-get (get-text-property 0 'org-hd-marker b) "TODO"))
+        (order (list "NEXT" "WAITING" "TODO"))
+        )
     (if (< (seq-position order tsa) (seq-position order tsb))
         +1 -1)))
 (setq org-agenda-cmp-user-defined #'kls-compare-todo-state)
 
-;; (tsb (org-entry-get b "TODO"))
 ;; configure pretty bullets
 (after! org-superstar
   (setq org-superstar-headline-bullets-list
