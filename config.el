@@ -273,6 +273,8 @@
         org-habit-show-all-today t)
   ;; I don't like the auto-resizing thing doom does
   (remove-hook 'org-agenda-mode-hook #'+org-habit-resize-graph-h)
+  ;; explicitly load org modules
+  (org-load-modules-maybe t)
   )
 
 ;; customized agenda view
