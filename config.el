@@ -8,9 +8,10 @@
       calendar-location-name "San Francisco, CA")
 
 ;;; Doom Fonts
-(setq doom-font (font-spec :family "Dank Mono" :size 16)
-      doom-big-font (font-spec :family "Dank Mono" :size 28)
-      doom-variable-pitch-font (font-spec :family "Overpass" :size 15))
+;; (setq doom-font (font-spec :family "Dank Mono" :size 32)
+;;       doom-big-font (font-spec :family "Dank Mono" :size 56)
+;;       doom-variable-pitch-font (font-spec :family "Overpass" :size 30))
+(setq doom-font (font-spec :family "Hack" :size 32))
 
 ;;; Doom Theme
 (setq doom-theme 'doom-gruvbox
@@ -346,7 +347,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
       evil-vsplit-window-right t)
 
 ;; start frame maximized
-(add-hook 'window-setup-hook #'toggle-frame-maximized)
+;(add-hook 'window-setup-hook #'toggle-frame-maximized)
 
 ;; use gravatars for commits
 (setq magit-revision-show-gravatars t)
