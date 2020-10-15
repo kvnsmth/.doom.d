@@ -377,6 +377,16 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; what does this do?
 (setq display-fill-column-indicator t)
 
+;; convenience functions to undo fill mode
+(defun unfill-paragraph ()
+  (interactive)
+  (let ((fill-column (point-max)))
+    (fill-paragraph nil)))
+(defun unfill-region ()
+  (interactive)
+  (let ((fill-column (point-max)))
+    (fill-region (region-beginning) (region-end) nil)))
+
 ;;
 ;; keymappings
 ;;
