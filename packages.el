@@ -11,6 +11,7 @@
 (package! evil-visual-mark-mode) ; https://github.com/roman/evil-visual-mark-mode
 (package! racket-mode)           ; https://github.com/greghendershott/racket-mode
 
+(package! ewal-doom-themes)      ; https://gitlab.com/jjzmajic/ewal
 
 ;;; debugging/utility packages
 ;;; only uncomment when I want to use them

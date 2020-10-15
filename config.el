@@ -8,18 +8,21 @@
       calendar-location-name "San Francisco, CA")
 
 ;;; Doom Fonts
-;; (setq doom-font (font-spec :family "Dank Mono" :size 32)
-;;       doom-big-font (font-spec :family "Dank Mono" :size 56)
-;;       doom-variable-pitch-font (font-spec :family "Overpass" :size 30))
-(setq doom-font (font-spec :family "Hack" :size 32))
+(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 28))
 
 ;;; Doom Theme
-(setq doom-theme 'doom-gruvbox
-      doom-gruvbox-dark-variant "hard"
-      doom-gruvbox-brighter-comments t)
+(setq kvnsmth-theme 'ewal-doom-one)
+(use-package ewal-doom-themes)
+(setq doom-theme kvnsmth-theme)
+(setq ewal-doom-one-brighter-modeline t
+      ewal-doom-one-brighter-comments t
+      ewal-doom-one-comment-bg nil
+      ewal-doom-one-padded-modeline nil
+      ewal-force-tty-colors-p nil)
+
 ;; I don't like the default yellow for outline-1
 ;; While we're here, customize some more.
-(custom-theme-set-faces! 'doom-gruvbox
+(custom-theme-set-faces! kvnsmth-theme
   `(outline-1    :foreground ,(doom-color 'violet)       :bold t)
   `(outline-2    :foreground ,(doom-color 'blue)         :bold t)
   `(outline-3    :foreground ,(doom-color 'teal)         :bold t)
