@@ -31,6 +31,54 @@
   `(org-ellipsis :foreground ,(doom-color 'fg)           :bold nil)
   )
 
+;; Email
+(set-email-account! "3142718"
+                    '((user-mail-address     . "kevin@3142718.com")
+                      (user-full-name         . "Kevin Smith")
+                      (mu4e-sent-folder       . "/3142718/Sent")
+                      (mu4e-drafts-folder     . "/3142718/Drafts")
+                      (mu4e-trash-folder      . "/3142718/Trash")
+                      (mu4e-refile-folder     . "/3142718/Archive")
+                      (smtpmail-smtp-user     . "nivek@3142718.com")
+                      (send-mail-function     . 'smtpmail-send-it)
+                      (smtpmail-smtp-server   . "smtp.fastmail.com")
+                      (smtpmail-stream-type   . ssl)
+                      (smtpmail-smtp-service  . 465)
+                      (mu4e-compose-signature . "\nKevin Smith"))
+                    nil)
+(set-email-account! "kevinsmithcc"
+                    '((user-mail-address     . "kevin@kevinsmith.cc")
+                      (user-full-name         . "Kevin Smith")
+                      (mu4e-sent-folder       . "/kevinsmithcc/[Gmail]/Sent Mail")
+                      (mu4e-drafts-folder     . "/kevinsmithcc/[Gmail]/Drafts")
+                      (mu4e-trash-folder      . "/kevinsmithcc/[Gmail]/Trash")
+                      (mu4e-refile-folder     . "/kevinsmithcc/[Gmail]/All Mail")
+                      (smtpmail-smtp-user     . "kevin@kevinsmith.cc")
+                      (send-mail-function     . 'smtpmail-send-it)
+                      (smtpmail-smtp-server   . "smtp.gmail.com")
+                      (smtpmail-stream-type   . ssl)
+                      (smtpmail-smtp-service  . 465)
+                      (mu4e-compose-signature . "\nKevin Smith"))
+                    t)
+(after! mu4e
+  (setq mu4e-view-show-images nil
+        mu4e-context-policy 'ask-if-none
+        mu4e-compose-context-policy 'always-ask
+        mu4e-compose-dont-reply-to-self t
+        mu4e-split-view 'single-window
+        mu4e-bookmarks '()) ; clear out default bookmarks
+  (mu4e-bookmark-define
+   "date:today..now" "Today" ?t)
+  (mu4e-bookmark-define
+   "maildir:/kevinsmithcc/Inbox OR maildir:/3142718/Inbox" "All Inboxes" ?i)
+  (mu4e-bookmark-define
+   "flag:flagged" "Flagged" ?f)
+  (mu4e-bookmark-define
+   "flag:unread AND NOT flag:trashed" "All Unread" ?u)
+  )
+(setq auth-sources
+      '((:source "~/.authinfo.gpg")))
+
 ;;; Org Mode
 ;;;
 (setq
@@ -223,6 +271,9 @@
           ("c" "Correspondence" entry
            (file+headline "_todo.org" "Correspondence")
            "* TODO %?\n%i\n%U" :prepend t)
+          ("e" "Email" entry
+           (file+headline "_todo.org" "Correspondence")
+           "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
           ("f" "Fleeting" entry
            (file+headline "_xfleeting.org" "Inbox")
            "* %U\n%?\n%i\nfile:%F" :prepend t)
