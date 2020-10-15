@@ -390,7 +390,15 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
 
 ;; projectile setup
-(setq projectile-project-search-path '("~/code/" "~/code/kvnsmth/"))
+(setq projectile-project-search-path
+      '("~/code/"))
+(setq org-projectile-projects-file
+      (expand-file-name "project-todos.org" org-directory))
+(use-package! org-projectile
+  :after org
+  :config
+  (push (org-projectile-project-todo-entry) org-capture-templates)
+  )
 
 ;; switch to new window after a split
 (setq evil-split-window-below t

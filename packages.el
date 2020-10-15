@@ -10,8 +10,8 @@
 (package! org-roam-server)       ; https://github.com/org-roam/org-roam-server
 (package! evil-visual-mark-mode) ; https://github.com/roman/evil-visual-mark-mode
 (package! racket-mode)           ; https://github.com/greghendershott/racket-mode
-
 (package! ewal-doom-themes)      ; https://gitlab.com/jjzmajic/ewal
+(package! org-projectile)        ; https://github.com/IvanMalison/org-projectile
 
 ;;; debugging/utility packages
 ;;; only uncomment when I want to use them
