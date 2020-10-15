@@ -399,11 +399,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (setq visual-fill-column-center-text t)
 
 ;; made spelling and grammar opt-in
-(remove-hook! '(org-mode-hook markdown-mode-hookk)
-  #'flyspell-mode)
-(remove-hook! '(org-mode-hook markdown-mode-hook)
-  #'writegood-mode)
-(add-hook! 'org-mode-hook (flycheck-mode -1))
+;; (remove-hook! '(org-mode-hook markdown-mode-hookk)
+;;   #'flyspell-mode)
+;; (remove-hook! '(org-mode-hook markdown-mode-hook)
+;;   #'writegood-mode)
+;; (add-hook! 'org-mode-hook (flycheck-mode -1))
+
+(setq ispell-dictionary "en")
 
 ;; company backends don't load reliably for org
 ;; I don't know why but text mode seemed to be hijacking company-org-roam
