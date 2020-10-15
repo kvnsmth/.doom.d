@@ -276,7 +276,7 @@
            "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
           ("f" "Fleeting" entry
            (file+headline "_xfleeting.org" "Inbox")
-           "* %U\n%?\n%i\nfile:%F" :prepend t)
+           "* %U\n%?\n%i\nfile:%F" :prepend nil)
           ("g" "Gratitude" entry
            (file+olp+datetree "_gratitude.org")
            "* %?")
@@ -392,9 +392,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; switch to new window after a split
 (setq evil-split-window-below t
       evil-vsplit-window-right t)
-
-;; start frame maximized
-;(add-hook 'window-setup-hook #'toggle-frame-maximized)
 
 ;; use gravatars for commits
 (setq magit-revision-show-gravatars t)
