@@ -5,8 +5,8 @@
        ;;japanese
 
        :completion
-       (company            ; the ultimate code completion backend
-        +childframe)
+       (company +tng)           ; the ultimate code completion backend
+        ;; +childframe)
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        (ivy                ; a search engine for love and life
@@ -16,19 +16,19 @@
        :ui
        ;;deft              ; notational velocity for Emacs
        doom                ; what makes DOOM look the way it does
-       ;;doom-dashboard    ; a nifty splash screen for Emacs
+       doom-dashboard      ; a nifty splash screen for Emacs
        doom-quit           ; DOOM quit-message prompts when you quit Emacs
        ;;fill-column       ; a `fill-column' indicator
        hl-todo             ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        hydra
        ;;indent-guides     ; highlighted indent columns
+       ligatures           ; ligatures or substitute text with pretty symbols
        ;;minimap           ; show a map of the code on the side
        modeline            ; snazzy, Atom-inspired modeline, plus API
        nav-flash           ; blink cursor line after big motions
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints             ; highlight the region an operation acts on
        (popup +defaults)   ; tame sudden yet inevitable temporary windows
-       ligatures           ; ligatures or substitute text with pretty symbols
        ;;tabs              ; a tab bar for Emacs
        treemacs            ; a project drawer, like neotree but cooler
        unicode             ; extended unicode support for various languages
@@ -69,7 +69,9 @@
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
-       spell               ; tasing you for misspelling mispelling
+       (spell              ; tasing you for misspelling mispelling
+        +aspell
+        +flyspell)
        grammar             ; tasing grammar mistake every you make
 
        :tools
@@ -104,7 +106,7 @@
        ;;crystal           ; ruby at the speed of c
        ;;csharp            ; unity, .NET, and mono shenanigans
        ;;data              ; config/data formats
-       ;;(dart +flutter)   ; paint ui and not much else
+       (dart +flutter)     ; paint ui and not much else
        elixir              ; erlang done right
        elm                 ; care for a cup of TEA?
        emacs-lisp          ; drown in parentheses
@@ -172,7 +174,7 @@
        yaml                ; JSON, but readable
 
        :email
-       ;;(mu4e +gmail)
+       (mu4e)
        ;;notmuch
        ;;(wanderlust +gmail)
 
@@ -180,7 +182,7 @@
        ;;calendar
        ;;irc               ; how neckbeards socialize
        ;;(rss +org)        ; emacs as an RSS reader
-       twitter             ; twitter client https://twitter.com/vnought
+       ;;twitter           ; twitter client https://twitter.com/vnought
 
        :config
        ;;literate
