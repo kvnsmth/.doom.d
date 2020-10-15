@@ -449,63 +449,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (use-package! vlf-setup
   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
 
-;; improve info colors
-(use-package! info-colors
-  :commands (info-colors-fontify-node))
-(add-hook 'Info-selection-hook 'info-colors-fontify-node)
-(add-hook 'Info-mode-hook #'mixed-pitch-mode)
-
-;;; lexic for offline dictionary
-;;; dictionaries in StarDict format:
-;;;   http://download.huzheng.org/bigdict/
-;;;   https://tuxor1337.frama.io/firedict/dictionaries.html
-(use-package! lexic
-  :commands lexic-search lexic-list-dictionary
-  :init
-  (setq lexic-program-path "/usr/local/bin/sdcv")
-  :config
-  (map! :map lexic-mode-map
-        :n "q" #'lexic-return-from-lexic
-        :nv "RET" #'lexic-search-word-at-point
-        :n "a" #'outline-show-all
-        :n "h" (cmd! (outline-hide-sublevels 3))
-        :n "o" #'lexic-toggle-entry
-        :n "n" #'lexic-next-entry
-        :n "N" (cmd! (lexic-next-entry t))
-        :n "p" #'lexic-previous-entry
-        :n "P" (cmd! (lexic-previous-entry t))
-        :n "b" #'lexic-search-history-backwards
-        :n "f" #'lexic-search-history-forwards
-        :n "/" (cmd! (call-interactively #'lexic-search)))
-  (defvar lexic-dictionary-specs
-    '(("Webster's Revised Unabridged Dictionary (1913)"
-       :formatter lexic-format-webster
-       :priority 1)
-      ("GNU Collaborative International Dictionary of English"
-       :formatter lexic-format-webster
-       :priority 1)
-      ("Elements database"
-       :short "Element"
-       :formatter lexic-format-element
-       :priority 2)
-      ("Online Etymology Dictionary"
-       :short "Etymology"
-       :formatter lexic-format-online-etym
-       :priority 4)
-      ("Soule's Dictionary of English Synonyms"
-       :short "Synonyms"
-       :formatter lexic-format-soule
-       :priority 5))))
-
-(defadvice! +lookup/dictionary-definition-lexic (identifier &optional _)
-  "Look up the definition of the word at point (or selection) using `lexic-search'."
-  :override #'+lookup/dictionary-definition
-  (interactive
-   (list (or (doom-thing-at-point-or-region 'word)
-             (read-string "Look up in dictionary: "))
-         current-prefix-arg))
-  (lexic-search identifier nil nil t))
-
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
 ;; - `load!' for loading external *.el files relative to this one
