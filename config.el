@@ -1,7 +1,7 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;;; Personal Information
-(setq user-full-name "Kevn Smith"
+;; Personal Information
+(setq user-full-name "Kevin Smith"
       user-mail-address "kevin@kevinsmith.cc"
       calendar-latitude 37.8
       calendar-longitude -122.4
@@ -144,10 +144,6 @@
    org-roam-index-file "_index.org"
    )
   )
-;; sort diary entries
-(add-hook! 'diary-list-entries-hook 'diary-sort-entries)
-;; include diary entries by default
-(setq org-agenda-include-diary t)
 ;; set org-agenda to look at org-roam files too
 (setq org-agenda-files `(,org-directory))
 ;; configure how org reports stuck projects
@@ -342,7 +338,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; projectile setup
 (setq projectile-project-search-path '("~/code/" "~/code/kvnsmth/"))
 
-;; switch to new window after a slit
+;; switch to new window after a split
 (setq evil-split-window-below t
       evil-vsplit-window-right t)
 
