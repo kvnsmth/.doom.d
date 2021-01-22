@@ -170,8 +170,6 @@
 (setq org-adapt-indentation t)
 ;; keep blank line with cycling visibility
 (setq org-cycle-separator-lines 1)
-;; fancy "ellipsis" when collapsing levels
-(setq org-ellipsis " ︙")
 
 (use-package! org-roam-server
   :ensure t
@@ -388,8 +386,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         company-minimum-prefix-length 2
         company-show-numbers t
         company-tooltip-minimum-width 30
-        company-tooltip-maximum-width 60)
-  (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
+        company-tooltip-maximum-width 60))
 
 ;; projectile setup
 (setq projectile-project-search-path
@@ -472,19 +469,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; center text when visual wrapping is on
 (setq visual-fill-column-center-text t)
 
-;; made spelling and grammar opt-in
-;; (remove-hook! '(org-mode-hook markdown-mode-hookk)
-;;   #'flyspell-mode)
-;; (remove-hook! '(org-mode-hook markdown-mode-hook)
-;;   #'writegood-mode)
-;; (add-hook! 'org-mode-hook (flycheck-mode -1))
-
 (setq ispell-dictionary "en")
-
-;; company backends don't load reliably for org
-;; I don't know why but text mode seemed to be hijacking company-org-roam
-;; REVIEW surely this is a bug...
-(set-company-backend! '(org-mode text-mode) '(company-org-roam company-yasnippet company-dabbrev))
 
 ;;
 ;; package configs
