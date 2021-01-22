@@ -446,6 +446,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   (let ((fill-column (point-max)))
     (fill-region (region-beginning) (region-end) nil)))
 
+;; convenience for getting text out of emacs to other places that aren't fill-friendly
+(defun unfill-copy-refill ()
+  (interactive)
+  (unfill-region)
+  (evil-yank (region-beginning) (region-end))
+  (fill-region (region-beginning) (region-end) nil))
+
 ;;
 ;; keymappings
 ;;
