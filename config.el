@@ -401,8 +401,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (setq evil-split-window-below t
       evil-vsplit-window-right t)
 
-;; use gravatars for commits
-(setq magit-revision-show-gravatars t)
 ;; treemacs config
 (setq +treemacs-git-mode nil      ; I don't need git in my treemacs
       treemacs-position 'right    ; personal preference
