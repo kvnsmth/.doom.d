@@ -177,9 +177,11 @@
   :ensure t
   :config
   (setq org-roam-server-host "127.0.0.1"
-        org-roam-server-port 8080
-        org-roam-server-export-inline-images t
+        org-roam-server-port 8181
         org-roam-server-authenticate nil
+        org-roam-server-export-inline-images t
+        org-roam-server-serve-files nil
+        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
         org-roam-server-network-poll t
         org-roam-server-network-arrows nil
         org-roam-server-network-label-truncate t
@@ -246,12 +248,12 @@
   ;; setup org roam capture templates
   (setq org-roam-capture-templates
         '(
-          ("n" "note" plain #'org-roam-capture--get-point
+          ("n" "note" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "%<%Y%m%d%H%M%S>-${slug}"
            :head "#+TITLE: ${title}\n"
            :unnarrowed t)
-          ("p" "permanent" plain #'org-roam-capture--get-point
+          ("p" "permanent" plain (function org-roam--capture-get-point)
            "+ tags :: %?\n\n* Note\n"
            :file-name "p_%<%Y%m%d%H%M%S>"
            :head "#+TITLE: ${title}\n#+roam_tags: perm\n\n"
@@ -259,10 +261,10 @@
           )
         )
   (setq org-roam-capture-ref-templates
-        '(("w" "website" plain #'org-roam-capture--get-point
-           "+ source :: ${ref}\n+ tags :: %?\n+ description :: \n\n* TODO read\n\n* Summary\n\n* Notes"
+        '(("w" "website" plain (function org-roam--capture-get-point)
+           "+ source :: ${ref}\n+ tags :: %?\n+ description :: ${body}\n\n* TODO read\n\n* Summary\n\n* Notes"
            :file-name "w_%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+roam_tags: ref\n\n"
+           :head "#+TITLE: ${title}\n#+roam_key: ${ref}\n#+roam_tags: ref\n\n"
            :unnarrowed t)
           )
         )
