@@ -452,6 +452,11 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   (evil-yank (region-beginning) (region-end))
   (fill-region (region-beginning) (region-end) nil))
 
+;; abbrev
+(set-default 'abbrev-mode t)
+(setq save-abbrevs nil)
+(setq abbrev-file-name "~/.doom.d/abbrev_defs.el")
+
 ;;
 ;; keymappings
 ;;
