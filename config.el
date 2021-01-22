@@ -3,9 +3,9 @@
 ;; Personal Information
 (setq user-full-name "Kevin Smith"
       user-mail-address "kevin@kevinsmith.cc"
-      calendar-latitude 37.8
-      calendar-longitude -122.4
-      calendar-location-name "San Francisco, CA")
+      calendar-latitude 39.1
+      calendar-longitude -84.5
+      calendar-location-name "Cincinnati, OH")
 
 ;;; Doom Fonts
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 28))
