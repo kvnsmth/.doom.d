@@ -8,18 +8,16 @@
       calendar-location-name "Cincinnati, OH")
 
 ;;; Doom Fonts
-(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 28))
+(setq doom-font (font-spec :family "Liberation Mono" :size 28))
 
-;;; Doom Theme
-(setq kvnsmth-theme 'ewal-doom-one)
-(use-package ewal-doom-themes)
+;;; Theme
+(setq kvnsmth-theme 'doom-nord-light)
 (setq doom-theme kvnsmth-theme)
 (setq ewal-doom-one-brighter-modeline t
       ewal-doom-one-brighter-comments t
       ewal-doom-one-comment-bg nil
       ewal-doom-one-padded-modeline nil
       ewal-force-tty-colors-p nil)
-
 ;; I don't like the default yellow for outline-1
 ;; While we're here, customize some more.
 (custom-theme-set-faces! kvnsmth-theme
